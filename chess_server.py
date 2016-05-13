@@ -32,6 +32,12 @@ def move(m):
 		print game
 		return 'Ok'
 
+@app.route('/undo',methods=['POST'])
+def undo():
+	if request.method == 'POST':
+		game.pop()
+		return 'Ok'
+
 @app.route('/init',methods=['POST'])
 def init():
 	if request.method == 'POST':
