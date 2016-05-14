@@ -15,12 +15,14 @@ def hello():
     return "Hello World!"
 
 @app.route('/legal_moves')
-def legal_moves_start():
+def legal_moves():
 	moves = game.legal_moves
 	l = list()
 	for m in moves:
 		l.append(m.uci())
 	d = dict(enumerate(l))
+	d['kingside'] = game.has_kingside_castling_rights(game.turn)
+	d['queenside'] = game.has_queenside_castling_rights(game.turn)
 	d['len'] = len(l)
 	return jsonify(d)
 
@@ -30,6 +32,7 @@ def move(m):
 		m = str(m)
 		game.push(chess.Move.from_uci(m))
 		print game
+		print game.ep_square
 		return 'Ok'
 
 @app.route('/undo',methods=['POST'])
