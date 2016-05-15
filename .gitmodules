@@ -1,0 +1,3 @@
+[submodule "ChessEngineWebsite"]
+	path = ChessEngineWebsite
+	url = https://github.com/esimon324/ChessEngineWebsite.git
