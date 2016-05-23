@@ -18,27 +18,31 @@ def hello():
 def legal_moves():
 	moves = game.legal_moves
 	l = list()
-	for m in moves:
-		l.append(m.uci())
-	d = dict(enumerate(l))
-	d['kingside'] = game.has_kingside_castling_rights(game.turn)
-	d['queenside'] = game.has_queenside_castling_rights(game.turn)
-	d['len'] = len(l)
-	return jsonify(d)
-
-@app.route('/move/<m>',methods=['POST'])
+	if(len(moves) > 0):
+		for m in moves:
+			l.append(m.uci())
+		d = dict(enumerate(l))
+		d['len'] = len(l)
+		return jsonify(d)
+	else:	
+		return 'NO LEGAL MOVES'
+@app.route('/move/<m>')
 def move(m):
-	if request.method == 'POST':
-		m = str(m)
-		game.push(chess.Move.from_uci(m))
-		print game
-		print game.ep_square
-		return 'Ok'
+	m = str(m)
+	move = chess.Move.from_uci(m)
+	r = dict()
+	r['ep'] = game.is_en_passant(move)
+	r['epSquare'] = game.ep_square
+	r['kingside'] = game.is_kingside_castling(move)
+	r['queenside'] = game.is_queenside_castling(move)
+	game.push(chess.Move.from_uci(m))
+	return jsonify(r)
 
 @app.route('/undo',methods=['POST'])
 def undo():
 	if request.method == 'POST':
 		game.pop()
+		print game
 		return 'Ok'
 
 @app.route('/init',methods=['POST'])
