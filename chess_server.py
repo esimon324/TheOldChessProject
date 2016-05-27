@@ -10,10 +10,6 @@ CORS(app)
 
 game = chess.Board()
 
-@app.route('/')
-def hello():
-    return "Hello World!"
-
 @app.route('/legal_moves')
 def legal_moves():
 	moves = game.legal_moves
@@ -35,7 +31,13 @@ def move(m):
 	r['epSquare'] = game.ep_square
 	r['kingside'] = game.is_kingside_castling(move)
 	r['queenside'] = game.is_queenside_castling(move)
+		
 	game.push(chess.Move.from_uci(m))
+
+	r['checkmate'] = game.is_checkmate()
+	r['stalemate'] = game.is_stalemate()
+	r['insufficientMaterial'] = game.is_insufficient_material()
+	r['threefoldRepitition'] = game.can_claim_threefold_repetition()
 	return jsonify(r)
 
 @app.route('/undo',methods=['POST'])
