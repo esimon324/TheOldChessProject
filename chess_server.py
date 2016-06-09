@@ -2,8 +2,7 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from flask.ext.cors import CORS
-import chess
-import game_tools
+import chess, minimax, evaluator
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +21,15 @@ def legal_moves():
 		return jsonify(d)
 	else:	
 		return 'NO LEGAL MOVES'
+
+@app.route('/calculate_move/<d>')
+def calculate_move(d):
+	d = int(d)
+	value, move = minimax.minimax_alpha_beta(game, 4, True, evaluator.evaluate_advanced)
+	game.push(move)
+	print(game)
+	return move.uci()
+
 @app.route('/move/<m>')
 def move(m):
 	m = str(m)
@@ -38,14 +46,16 @@ def move(m):
 	r['stalemate'] = game.is_stalemate()
 	r['insufficientMaterial'] = game.is_insufficient_material()
 	r['threefoldRepitition'] = game.can_claim_threefold_repetition()
+	print game
 	return jsonify(r)
 
 @app.route('/undo',methods=['POST'])
 def undo():
 	if request.method == 'POST':
-		game.pop()
-		print game
-		return 'Ok'
+		if len(game.move_stack) > 0:
+			game.pop()
+			print game
+	return 'Ok'
 
 @app.route('/init',methods=['POST'])
 def init():
